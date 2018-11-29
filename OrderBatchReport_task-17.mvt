@@ -1,0 +1,47 @@
+
+
+<mvt:foreach iterator="order" array="admin_order:orders">
+
+	<mvt:comment>Header Row</mvt:comment>
+	<mvt:assign name="g.order_number_header" 		value=" 'Order#' " />
+	<mvt:assign name="g.billing_fname_header" 		value=" 'Billing First Name' " />
+	<mvt:assign name="g.billing_lname_header"		value=" 'Billing Last Name' " />
+	<mvt:assign name="g.items_subtotal_header" 		value=" 'Items Subtotal' " />
+	<mvt:assign name="g.shipping_cost_header"		value=" 'Shipping Cost' " />
+	<mvt:assign name="g.tax_header" 				value=" 'Tax' " />
+	<mvt:assign name="g.other_charges_header" 		value=" 'Other Charges' " />
+	<mvt:assign name="g.order_total_header" 		value=" 'Order Total' " />
+
+	<mvt:comment>Helper Variables</mvt:comment>
+	<mvt:assign name="g.comma" 						value="asciichar(44) " />
+	<mvt:assign name="g.newline" 					value="asciichar(10)" />
+
+	<mvt:comment>File Path</mvt:comment>
+	<mvt:assign name="g.filename" 					value=" 'order_batch_file.csv' " />
+	<mvt:assign name="g.filepath" 					value=" '/htdocs/mm5/scripts/' " />
+
+	<mvt:assign name="g.headerrow" 	value="
+	g.order_number_header 		$ g.comma $
+	g.billing_fname_header 		$ g.comma $
+	g.billing_lname_header 		$ g.comma $
+	g.items_subtotal_header 	$ g.comma $
+	g.shipping_cost_header 		$ g.comma $
+	g.tax_header 				$ g.comma $
+	g.other_charges_header 		$ g.comma $
+	g.order_total_header 		$ g.new_line" />
+
+	<mvt:comment>Writing a CSV File</mvt:comment>
+	<mvt:assign name="g.file_exists" value="sexists(g.filepath $ g.filename)" />
+
+	<mvt:if expr="g.file_exists EQ 1">
+		<mvt:assign name="g.file_deleted" value="sdelete(g.filepath $ g.filename)" />
+
+		<mvt:if expr="g.file_deleted EQ 1">
+			<mvt:assign name="g.file_created" value="file_create(g.filepath $ g.filename,'script', g.headerrow)" />
+		</mvt:if>
+	<mvt:else>
+		<mvt:assign name="g.file_created" value="file_create(g.filepath $ g.filename,'script', g.headerrow)" />
+	</mvt:if>
+
+	<mvt:item name="tbr_order_contents" />	
+</mvt:foreach>

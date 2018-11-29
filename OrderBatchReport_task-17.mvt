@@ -1,47 +1,80 @@
+<mvt:comment>Header Row</mvt:comment>
+<mvt:assign name="g.order_number_header" 		value=" 'Order#' " />
+<mvt:assign name="g.billing_fname_header" 		value=" 'Billing First Name' " />
+<mvt:assign name="g.billing_lname_header"		value=" 'Billing Last Name' " />
+<mvt:assign name="g.items_subtotal_header" 		value=" 'Items Subtotal' " />
+<mvt:assign name="g.shipping_cost_header"		value=" 'Shipping Cost' " />
+<mvt:assign name="g.tax_header" 				value=" 'Tax' " />
+<mvt:assign name="g.other_charges_header" 		value=" 'Other Charges' " />
+<mvt:assign name="g.order_total_header" 		value=" 'Order Total' " />
 
+<mvt:comment>Helper Variables</mvt:comment>
+<mvt:assign name="g.comma" 						value="asciichar(44) " />
+<mvt:assign name="g.newline" 					value="asciichar(10)" />
 
-<mvt:foreach iterator="order" array="admin_order:orders">
+<mvt:comment>File Path</mvt:comment>
+<mvt:assign name="g.filename" 					value=" 'order_batch_file.csv' " />
+<mvt:assign name="g.filepath" 					value=" '/mm5/scripts/' " />
 
-	<mvt:comment>Header Row</mvt:comment>
-	<mvt:assign name="g.order_number_header" 		value=" 'Order#' " />
-	<mvt:assign name="g.billing_fname_header" 		value=" 'Billing First Name' " />
-	<mvt:assign name="g.billing_lname_header"		value=" 'Billing Last Name' " />
-	<mvt:assign name="g.items_subtotal_header" 		value=" 'Items Subtotal' " />
-	<mvt:assign name="g.shipping_cost_header"		value=" 'Shipping Cost' " />
-	<mvt:assign name="g.tax_header" 				value=" 'Tax' " />
-	<mvt:assign name="g.other_charges_header" 		value=" 'Other Charges' " />
-	<mvt:assign name="g.order_total_header" 		value=" 'Order Total' " />
+<mvt:assign name="g.headerrow" 	value="
+g.order_number_header 		$ g.comma $
+g.billing_fname_header 		$ g.comma $
+g.billing_lname_header 		$ g.comma $
+g.items_subtotal_header 	$ g.comma $
+g.shipping_cost_header 		$ g.comma $
+g.tax_header 				$ g.comma $
+g.other_charges_header 		$ g.comma $
+g.order_total_header 		$ g.new_line" />
 
-	<mvt:comment>Helper Variables</mvt:comment>
-	<mvt:assign name="g.comma" 						value="asciichar(44) " />
-	<mvt:assign name="g.newline" 					value="asciichar(10)" />
+<mvt:comment>Writing a CSV File</mvt:comment>
+<mvt:assign name="g.file_exists" value="sexists(g.filepath $ g.filename)" />
 
-	<mvt:comment>File Path</mvt:comment>
-	<mvt:assign name="g.filename" 					value=" 'order_batch_file.csv' " />
-	<mvt:assign name="g.filepath" 					value=" '/htdocs/mm5/scripts/' " />
+<mvt:if expr="g.file_exists EQ 1">
+	<mvt:assign name="g.file_deleted" value="sdelete(g.filepath $ g.filename)" />
 
-	<mvt:assign name="g.headerrow" 	value="
-	g.order_number_header 		$ g.comma $
-	g.billing_fname_header 		$ g.comma $
-	g.billing_lname_header 		$ g.comma $
-	g.items_subtotal_header 	$ g.comma $
-	g.shipping_cost_header 		$ g.comma $
-	g.tax_header 				$ g.comma $
-	g.other_charges_header 		$ g.comma $
-	g.order_total_header 		$ g.new_line" />
-
-	<mvt:comment>Writing a CSV File</mvt:comment>
-	<mvt:assign name="g.file_exists" value="sexists(g.filepath $ g.filename)" />
-
-	<mvt:if expr="g.file_exists EQ 1">
-		<mvt:assign name="g.file_deleted" value="sdelete(g.filepath $ g.filename)" />
-
-		<mvt:if expr="g.file_deleted EQ 1">
-			<mvt:assign name="g.file_created" value="file_create(g.filepath $ g.filename,'script', g.headerrow)" />
-		</mvt:if>
-	<mvt:else>
+	<mvt:if expr="g.file_deleted EQ 1">
 		<mvt:assign name="g.file_created" value="file_create(g.filepath $ g.filename,'script', g.headerrow)" />
 	</mvt:if>
+<mvt:else>
+	<mvt:assign name="g.file_created" value="file_create(g.filepath $ g.filename,'script', g.headerrow)" />
+</mvt:if>
 
-	<mvt:item name="tbr_order_contents" />	
+<mvt:foreach iterator="order" array="admin_order:orders">
+	<mvt:comment>Order Number</mvt:comment>
+	<mvt:assign name="g.order_number" value="l.settings:order:id" />
+	&mvt:global:order_number;,
+
+	<mvt:comment>Billing First Name</mvt:comment>
+	<mvt:assign name="g.billing_fname" value="l.settings:order:bill_fname" />
+	&mvt:global:billing_fname;,
+
+	<mvt:comment>Billing Last Name</mvt:comment>
+	<mvt:assign name="g.billing_lname" value="l.settings:order:bill_lname" />
+	&mvt:global:billing_lname;,
+
+	<mvt:comment>Item Subtotal</mvt:comment>
+	<mvt:assign name="g.items_subtotal" value="l.settings:order:subtotal" />
+	&mvt:global:items_subtotal;,
+
+	<mvt:comment>Shipping Cost</mvt:comment>
+	<mvt:assign name="g.shipping_cost" value="l.settings:order:total_ship" />
+	&mvt:global:shipping_cost;,
+
+	<mvt:comment>Tax Cost</mvt:comment>
+	<mvt:assign name="g.tax" value="l.settings:order:total_tax" />
+	&mvt:global:tax;,
+
+	<mvt:comment>Other Charges</mvt:comment>
+	<mvt:assign name="g.other_charges" value="0" />
+	<mvt:foreach iterator="charge" array="order:charges">
+		<mvt:if expr="l.settings:charge:type NE 'SHIPPING' AND l.settings:charge:type NE 'TAX' ">
+			<mvt:assign name="g.other_charges" value="l.settings:charge:amount + g.other_charges" />
+		</mvt:if>
+	</mvt:foreach>
+	&mvt:global:other_charges;,
+
+	<mvt:comment>Order Total</mvt:comment>
+	<mvt:assign name="g.order_total" value="l.settings:order:total" />
+	&mvt:global:order_total;
+
 </mvt:foreach>

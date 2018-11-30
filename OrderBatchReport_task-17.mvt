@@ -24,7 +24,7 @@ g.items_subtotal_header 	$ g.comma $
 g.shipping_cost_header 		$ g.comma $
 g.tax_header 				$ g.comma $
 g.other_charges_header 		$ g.comma $
-g.order_total_header 		$ g.new_line" />
+g.order_total_header 		$ g.newline" />
 
 <mvt:comment>Writing a CSV File</mvt:comment>
 <mvt:assign name="g.file_exists" value="sexists(g.filepath $ g.filename)" />
@@ -40,7 +40,6 @@ g.order_total_header 		$ g.new_line" />
 </mvt:if>
 
 <mvt:foreach iterator="order" array="admin_order:orders">
-	<mvt:comment>Order Number</mvt:comment>
 	<mvt:assign name="g.order_number" value="l.settings:order:id" />
 	&mvt:global:order_number;,
 
@@ -53,7 +52,10 @@ g.order_total_header 		$ g.new_line" />
 	&mvt:global:billing_lname;,
 
 	<mvt:comment>Item Subtotal</mvt:comment>
-	<mvt:assign name="g.items_subtotal" value="l.settings:order:subtotal" />
+	<mvt:assign name="g.items_subtotal" value="0" />
+	<mvt:foreach iterator="item" array="order:items">
+		<mvt:assign name="g.items_subtotal" value="g.items_subtotal + l.settings:item:subtotal" />
+	</mvt:foreach>
 	&mvt:global:items_subtotal;,
 
 	<mvt:comment>Shipping Cost</mvt:comment>
@@ -67,14 +69,26 @@ g.order_total_header 		$ g.new_line" />
 	<mvt:comment>Other Charges</mvt:comment>
 	<mvt:assign name="g.other_charges" value="0" />
 	<mvt:foreach iterator="charge" array="order:charges">
-		<mvt:if expr="l.settings:charge:type NE 'SHIPPING' AND l.settings:charge:type NE 'TAX' ">
-			<mvt:assign name="g.other_charges" value="l.settings:charge:amount + g.other_charges" />
+		<mvt:if expr="l.settings:charge:type NE 'SHIPPING' AND l.settings:charge:type NE 'TAX' AND l.settings:charge:type NE 'DISCOUNT'">
+			<mvt:assign name="g.other_charges" value="g.other_charges + l.settings:charge:amount" />
 		</mvt:if>
 	</mvt:foreach>
 	&mvt:global:other_charges;,
 
 	<mvt:comment>Order Total</mvt:comment>
 	<mvt:assign name="g.order_total" value="l.settings:order:total" />
-	&mvt:global:order_total;
+	&mvt:global:order_total; <br>
+
+	<mvt:assign name="g.order_row" value="
+	g.order_number 		$ g.comma $
+	g.billing_fname 	$ g.comma $
+	g.billing_lname 	$ g.comma $
+	g.items_subtotal 	$ g.comma $
+	g.shipping_cost 	$ g.comma $
+	g.tax 				$ g.comma $
+	g.other_charges 	$ g.comma $
+	g.order_total 		$ g.newline" />
+
+	<mvt:assign name="g.row_appended" value="file_append( g.filepath $ g.filename, 'script', g.order_row )" />
 
 </mvt:foreach>

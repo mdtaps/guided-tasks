@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<myxml>
+<mvt:comment>Load all products</mvt:comment>
+<mvt:do file="g.Module_Library_DB" name="l.success" value="ProductList_Load_All( l.settings:products )" />
+
+<mvt:foreach iterator="product" array="products">
+	<mvt:item name="product_attributes" param="product:id" />
+</mvt:foreach>
+
+<mvt:comment>Load all attribute templates</mvt:comment>
+<mvt:do file="g.Module_Feature_ATT_DB" name="l.success" value="AttributeTemplateList_Load_All( l.settings:attribute_templates )" />
+
+<mvt:comment>Iterate through all attribute templates</mvt:comment>
+<mvt:foreach iterator="attribute_template" array="attribute_templates">
+
+	<AttributeTemplate_Update code="&mvt:attribute_template:code;" prompt="&mvt:attribute_template:prompt;" />
+
+    <mvt:comment>Load attributes of given attribute template</mvt:comment>
+    <mvt:do file="g.Module_Feature_ATT_DB" name="l.success" value="AttributeTemplateAttrList_Load_Template( l.settings:attribute_template:id, l.settings:attr_template_attributes )" />
+
+    <mvt:comment>Iterate through attributes of the attribute template</mvt:comment>
+    <mvt:foreach iterator="attr_template_attribute" array="attr_template_attributes">
+
+        <mvt:comment>Load options of attribute</mvt:comment>
+        <mvt:do file="g.Module_Feature_ATT_DB" name="l.success" value="AttributeTemplateOptionList_Load_Attribute( l.settings:attr_template_attribute:id, l.settings:attribute_template_options )" />
+
+        <AttributeTemplateAttribute_Update template_code="&mvt:attribute_template:code;">
+        	<Code>&mvt:attr_template_attribute:code;</Code>
+        	<Type>&mvt:attr_template_attribute:type;</Type>
+        	<Image></Image>
+        	<Prompt><![CDATA[&mvt:attr_template_attribute:prompt;]]></Prompt>
+        	<Price>&mvt:attr_template_attribute:price;</Price>
+        	<Cost>&mvt:attr_template_attribute:cost;</Cost>
+        	<Weight>&mvt:attr_template_attribute:weight;</Weight>
+        	<Required>&mvt:attr_template_attribute:required;</Required>
+       	</AttributeTemplateAttribute_Update>
+
+       	<mvt:comment>Iterate through each option</mvt:comment>
+       	<mvt:foreach iterator="attribute_template_option" array="attribute_template_options">
+
+       		<AttributeTemplateAttributeOption_Update attribute_code="&mvt:attr_template_attribute:code;">
+	        	<AttributeTemplateId>&mvt:attribute_template_option:attemp_id;</AttributeTemplateId>
+	        	<AttributeTemplateAttributeId>&mvt:attribute_template_option:attmpat_id;</AttributeTemplateAttributeId>
+	        	<Code>&mvt:attribute_template_option:code;</Code>
+	        	<Cost>&mvt:attribute_template_option:cost;</Cost>
+	        	<DisplayOrder>&mvt:attribute_template_option:disporder;</DisplayOrder>
+	        	<Id>&mvt:attribute_template_option:id;</Id>
+	        	<Price>&mvt:attribute_template_option:price;</Price>
+	        	<Prompt><![CDATA[&mvt:attribute_template_option:prompt;]]></Prompt>
+	        	<Weight>&mvt:attribute_template_option:weight;</Weight>
+        	</AttributeTemplateAttributeOption_Update>
+       	</mvt:foreach>
+
+    </mvt:foreach>
+
+</mvt:foreach>
+
+</myxml>

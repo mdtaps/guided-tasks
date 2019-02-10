@@ -27,7 +27,7 @@
         <AttributeTemplateAttribute_Update template_code="&mvt:attribute_template:code;">
         	<Code>&mvt:attr_template_attribute:code;</Code>
         	<Type>&mvt:attr_template_attribute:type;</Type>
-        	<Image></Image>
+        	<Image>&mvt:attr_template_attribute:image;</Image>
         	<Prompt><![CDATA[&mvt:attr_template_attribute:prompt;]]></Prompt>
         	<Price>&mvt:attr_template_attribute:price;</Price>
         	<Cost>&mvt:attr_template_attribute:cost;</Cost>

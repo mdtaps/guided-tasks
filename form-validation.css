@@ -1,0 +1,9 @@
+.c-form-list__item input .missing::after {
+    content: "Please fill out field";
+    font-size: 0.5rem;
+}
+
+.c-form-list__item .c-form-select .invalid::after {
+    content: "Please select option";
+    font-size: 0.5rem;
+}
